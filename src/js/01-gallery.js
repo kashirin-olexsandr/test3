@@ -3,7 +3,7 @@ import Player from '@vimeo/player';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 const iframe = document.querySelector('iframe');
 const player = new Player(iframe);
-import  galleryItems  from './gallery-items';
+import  galleryItems  from './gallery-items.mjs';
 console.log(SimpleLightbox);
 const refs = {
   galleryList: document.querySelector('.gallery'),
