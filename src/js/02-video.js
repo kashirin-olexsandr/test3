@@ -1,20 +1,24 @@
-import Player from '@vimeo/player';
+import Vimeo from '@vimeo/player';
 import throttle from 'lodash.throttle';
 
-const STORAGE_KEY = 'videoplayer-current-time';
+const playerIframe = document.getElementById('vimeo-player');
 
-const refs = {
-  iframe: document.querySelector('iframe'),
-};
+const player = new Vimeo(playerIframe);
 
-const player = new Player(refs.iframe);
+const savePlaybackTime = throttle(async () => {
+  const currentTime = await player.getCurrentTime();
+  localStorage.setItem('videoplayer-current-time', currentTime.toString());
+}, 1000); // Оновлюємо час не частіше
 
-player.setCurrentTime(localStorage.getItem(STORAGE_KEY) || 0);
-player.on('timeupdate', throttle(onTimeUpdate, 1000));
+player.on('timeupdate', savePlaybackTime);
 
-function onTimeUpdate({ seconds }) {
-  localStorage.setItem(STORAGE_KEY, seconds);
+// Функція для відновлення збереженої позиції
+async function restorePlaybackTime() {
+  const savedTime = localStorage.getItem('videoplayer-current-time');
+  if (savedTime !== null) {
+    await player.setCurrentTime(parseFloat(savedTime));
+  }
 }
 
-const storage = localStorage['videoplayer-current-time'];
-console.log(storage);
+// Викликаємо функцію відновлення після завантаження сторінки
+window.addEventListener('DOMContentLoaded', restorePlaybackTime);

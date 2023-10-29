@@ -1,107 +1,48 @@
-import SimpleLightbox from 'simplelightbox';
-import Player from '@vimeo/player';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-const iframe = document.querySelector('iframe');
-const player = new Player(iframe);
-console.log(SimpleLightbox);
-const refs = {
-  galleryList: document.querySelector('.gallery'),
-};
+import { galleryItems } from "./gallery-items.js";
 
-const galleryItems = [
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/14/16/43/himilayan-blue-poppy-4202825__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/14/16/43/himilayan-blue-poppy-4202825_1280.jpg',
-    description: 'Hokkaido Flower',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/14/22/05/container-4203677__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/14/22/05/container-4203677_1280.jpg',
-    description: 'Container Haulage Freight',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/16/09/47/beach-4206785__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/16/09/47/beach-4206785_1280.jpg',
-    description: 'Aerial Beach View',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2016/11/18/16/19/flowers-1835619__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2016/11/18/16/19/flowers-1835619_1280.jpg',
-    description: 'Flower Blooms',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2018/09/13/10/36/mountains-3674334__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2018/09/13/10/36/mountains-3674334_1280.jpg',
-    description: 'Alpine Mountains',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/16/23/04/landscape-4208571__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/16/23/04/landscape-4208571_1280.jpg',
-    description: 'Mountain Lake Sailing',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/17/09/27/the-alps-4209272__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/17/09/27/the-alps-4209272_1280.jpg',
-    description: 'Alpine Spring Meadows',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/16/21/10/landscape-4208255__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/16/21/10/landscape-4208255_1280.jpg',
-    description: 'Nature Landscape',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/17/04/35/lighthouse-4208843__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/17/04/35/lighthouse-4208843_1280.jpg',
-    description: 'Lighthouse Coast Sea',
-  },
-];
+// Описаний в документації
+import SimpleLightbox from "simplelightbox";
+// Додатковий імпорт стилів
+import "simplelightbox/dist/simple-lightbox.min.css";
 
+const galleryList = document.querySelector(".gallery");
 
-refs.galleryList.insertAdjacentHTML(
-  'beforeend',
-  createGalleryMarkup(galleryItems)
-);
+function createGalleryItem(item) {
+  const galleryItem = document.createElement("li");
+  galleryItem.classList.add("gallery__item");
 
-function createGalleryMarkup(galleryItems) {
-  return galleryItems
-    .map(
-      ({ original, preview, description }) =>
-        `<li class="gallery__item">
-        <a class="gallery__link" href=${original}>
-      <img
-        class="gallery__image"
-        src=${preview}
-        data-source=${original}
-        alt='${description}'
-      />
-    </a>
-    </li>`
-    )
-    .join('');
+  const galleryLink = document.createElement("a");
+  galleryLink.classList.add("gallery__link");
+  galleryLink.href = item.original;
+
+  const galleryImage = document.createElement("img");
+  galleryImage.classList.add("gallery__image");
+  galleryImage.src = item.preview;
+  galleryImage.alt = item.description;
+
+  galleryLink.appendChild(galleryImage);
+  galleryItem.appendChild(galleryLink);
+
+  return galleryItem;
 }
-const lightbox = new SimpleLightbox('.gallery a');
-// lightbox.refresh();
 
-const { email, message } = evt.target.elements;
+function createGallery(items) {
+  const galleryFragment = document.createDocumentFragment();
+  items.forEach((item) => {
+    const galleryItem = createGalleryItem(item);
+    galleryFragment.appendChild(galleryItem);
+  });
+  galleryList.appendChild(galleryFragment);
+}
 
-const formData = {};
+createGallery(galleryItems);
 
-formData[event.target.name] = event.target.value;
+const lightbox = new SimpleLightbox(".gallery__link", {
+  alertError: false,
+  captionsData: "alt",
+  fileExt: "png|jpg|jpeg|gif",
+  animationSpeed: 50,
+  showCounter: true,
+  captionDelay: 250,
+  preloading: false,
+});

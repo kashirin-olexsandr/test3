@@ -1,42 +1,38 @@
-import throttle from 'lodash.throttle';
-const STORAGE_KEY = 'feedback-form-state';
-let formData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-const testButton = document.querySelector('.test-button');
+const form = document.querySelector('.feedback-form');
+const emailInput = form.querySelector('[name="email"]');
+const messageInput = form.querySelector('[name="message"]');
 
-const refs = {
-  form: document.querySelector('.feedback-form'),
+const updateLocalStorage = () => {
+  const currentState = {
+    email: emailInput.value,
+    message: messageInput.value,
+  };
+  localStorage.setItem('feedback-form-state', JSON.stringify(currentState));
 };
 
-initialFormInputs();
+const fillFormFields = () => {
+  const savedState = JSON.parse(localStorage.getItem('feedback-form-state')) || {};
+  emailInput.value = savedState.email || '';
+  messageInput.value = savedState.message || '';
+};
 
-refs.form.addEventListener('input', throttle(onInputForm, 500));
-refs.form.addEventListener('submit', onSubmitForm);
+emailInput.addEventListener('input', updateLocalStorage);
+messageInput.addEventListener('input', updateLocalStorage);
 
-function onInputForm(event) {
-  formData[event.target.name] = event.target.value;
+window.addEventListener('load', fillFormFields);
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-}
-
-function onSubmitForm(event) {
-  event.preventDefault();
-  console.log(event.target);
-  const [email, message] = refs.form.elements;
-  console.dir(event.target);
-  if (!email.value || !message.value) {
-    return alert('Заповніть всі поля');
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (emailInput.value && messageInput.value) {
+    const currentState = {
+      email: emailInput.value,
+      message: messageInput.value,
+    };
+    console.log(currentState);
+    emailInput.value = '';
+    messageInput.value = '';
+    localStorage.removeItem('feedback-form-state');
+  } else {
+    alert('Увага! Всі поля форми мають бути заповнені!');
   }
-  localStorage.removeItem(STORAGE_KEY);
-  refs.form.reset();
-  formData = {};
-}
-
-function initialFormInputs() {
-  const initialValues = JSON.parse(localStorage.getItem(STORAGE_KEY));
-
-  if (initialValues) {
-    const [email, message] = refs.form.elements;
-    email.value = initialValues.email || '';
-    message.value = initialValues.message || '';
-  }
-}
+});
